@@ -1,0 +1,23 @@
+[project]
+name = "tradinganalysis"
+version = "0.1.0"
+description = "Point-in-time NSE market data MCP server for multi-agent NIFTY 50 research in Claude Code"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+dependencies = [
+    "mcp>=2.3,<3",
+    "yfinance>=1.8,<2",
+    "pandas>=2.2",
+    "numpy>=1.26",
+]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+    "network: test calls Yahoo Finance / Google News / NSE archives over the internet",
+]

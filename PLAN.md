@@ -95,6 +95,19 @@ All dated tools: required `symbol`, required `as_of` (YYYY-MM-DD); server refuse
 | `get_corporate_actions(symbol, as_of)` | Dividends/splits ≤ as_of |
 | `get_price_on(symbol, date)` | For settlement only |
 
+### Phase 1 as built (2026-11-05)
+
+Built and tested in the cloud session; see README for the final tool list. Changes from the table above:
+- Added `list_nifty50`, `get_market_news` and `get_mode` (LIVE vs HISTORICAL, so agents know when Kite may be used).
+- `get_price_on` is **not** an MCP tool: settlement reads prices after the decision date, so it will live in
+  `scripts/settle.py` (Phase 4) where agents can't call it.
+- Found during build: Yahoo also back-adjusts **EPS and share counts** for later bonuses (RIL FY24 EPS shows 51.45
+  vs reported 102.9). The server restores them, like prices.
+- Found during build: the MCP Python SDK is v2 (`MCPServer`, not `FastMCP`); expected failures are raised as
+  `ToolError` so the agent sees the reason.
+- Tests: 57 passing (offline date-fence and indicator tests, plus network tests on RELIANCE/INFY/HDFCBANK dates
+  and a price check for all 50 constituents).
+
 ## 5. Agents (Phase 2)
 
 Prompts adapted from TradingAgents with attribution, India-adjusted
@@ -116,7 +129,7 @@ Prompts adapted from TradingAgents with attribution, India-adjusted
 
 | # | Deliverable | Done when |
 |---|---|---|
-| 1 | MCP data server + look-ahead tests | `pytest` proves no tool returns data after `as_of`; registered in Claude Code; works for 5 Nifty stocks |
+| 1 ✅ | MCP data server + look-ahead tests | `pytest` proves no tool returns data after `as_of`; registered in Claude Code; works for 5 Nifty stocks |
 | 2 | 12 subagents + schemas + validate.py | Each agent runs standalone on a fixture and produces valid output |
 | 3 | `/analyze` skill | End-to-end run writes `runs/SYM/DATE/{reports, debate, decision.json, report.md}` |
 | 4 | Memory + settlement + backtest | `settle.py` scores pending decisions vs `^NSEI` after N trading days; backtest over a small grid produces a hit-rate / alpha table |

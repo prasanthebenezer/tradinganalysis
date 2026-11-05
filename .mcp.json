@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "tradinganalysis-data": {
+      "command": "uv",
+      "args": ["run", "--quiet", "python", "-m", "mcp_server.server"]
+    }
+  }
+}
