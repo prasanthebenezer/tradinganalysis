@@ -1,0 +1,216 @@
+<title>tradinganalysis Plan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column (~72ch) with full-width tables; a terminal-style pipeline strip near the top. */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --fg:#14181f; --muted:#5a6372; --line:#dde1e8;
+  --accent:#0b6e6e; --accent-soft:#e1f1f0; --warn:#9a5b00; --warn-soft:#fbf0dc; --bad:#a3312b; --bad-soft:#f8e3e1; --ok:#2f7a3a; --ok-soft:#e3f2e5;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1318; --surface:#161b22; --fg:#e6e9ee; --muted:#9aa4b2; --line:#2a313b;
+  --accent:#4fc1bd; --accent-soft:#12312f; --warn:#e3a94a; --warn-soft:#3a2c12; --bad:#ef7d74; --bad-soft:#3a1c1a; --ok:#7fcf8a; --ok-soft:#173220; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1318; --surface:#161b22; --fg:#e6e9ee; --muted:#9aa4b2; --line:#2a313b;
+  --accent:#4fc1bd; --accent-soft:#12312f; --warn:#e3a94a; --warn-soft:#3a2c12; --bad:#ef7d74; --bad-soft:#3a1c1a; --ok:#7fcf8a; --ok-soft:#173220; color-scheme:dark}
+
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:920px;margin:0 auto;padding-block:40px 64px;display:flex;flex-direction:column;gap:44px}
+section{display:flex;flex-direction:column;gap:14px;min-width:0}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(30px,5vw,44px);letter-spacing:-0.01em}
+h2{font-size:24px}
+h3{font-size:17px}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lede{color:var(--muted);font-size:17px}
+code,.mono{font-family:var(--f-mono);font-size:.9em}
+code{background:var(--accent-soft);color:var(--fg);padding:1px 5px;border-radius:4px}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.meta{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:var(--f-mono);font-size:12px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted)}
+.chip.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+
+/* pipeline strip */
+.pipe{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;overflow-x:auto}
+.pipe ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:10px;min-width:760px}
+.pipe li{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-left:3px solid var(--accent);background:var(--bg);border-radius:0 6px 6px 0}
+.pipe li b{font-family:var(--f-display);font-size:14px}
+.pipe li span{font-size:12.5px;color:var(--muted);line-height:1.4}
+.pipe .tag{font-family:var(--f-mono);font-size:11px;color:var(--accent)}
+.pipe-note{font-size:13px;color:var(--muted);margin-top:10px}
+
+/* tables */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td:first-child{white-space:nowrap}
+.st{display:inline-block;font-family:var(--f-mono);font-size:11.5px;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.st.ok{background:var(--ok-soft);color:var(--ok)}
+.st.no{background:var(--bad-soft);color:var(--bad)}
+.st.live{background:var(--warn-soft);color:var(--warn)}
+
+.rule{border:1px solid var(--line);border-left:4px solid var(--warn);background:var(--surface);border-radius:0 8px 8px 0;padding:12px 16px}
+.rule b{color:var(--warn)}
+
+ul.plain{margin:0;padding-left:20px;max-width:68ch;display:flex;flex-direction:column;gap:6px}
+ol.steps{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px;max-width:68ch}
+
+pre.tree{font-family:var(--f-mono);font-size:13px;line-height:1.5;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;overflow-x:auto;margin:0}
+footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:520px){ h2{font-size:21px} td:first-child{white-space:normal} }
+</style>
+
+<main>
+  <header style="display:flex;flex-direction:column;gap:14px">
+    <div class="eyebrow">Plan · Option C · agreed 05 Nov 2026</div>
+    <h1>tradinganalysis</h1>
+    <p class="lede">Multi-agent equity research for NIFTY 50 stocks, built from Claude Code parts: one MCP data server, twelve subagents and an <code>/analyze</code> skill. It follows the design of TauricResearch/TradingAgents (Apache-2.0), adapted for Indian markets and free data. It is for research and decision support and never places orders.</p>
+    <div class="meta">
+      <span class="chip">Universe: NIFTY 50</span>
+      <span class="chip">Horizon: 5 trading days</span>
+      <span class="chip">Benchmark: ^NSEI</span>
+      <span class="chip">Runtime: Claude Desktop · EbenezerOne</span>
+      <span class="chip ok">Orders: disabled</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="eyebrow">One run of /analyze SYMBOL DATE</div>
+    <h2>Agent pipeline</h2>
+    <div class="pipe">
+      <ol>
+        <li><span class="tag">parallel · sonnet</span><b>4 analysts</b><span>Market, Fundamentals, News, Sentiment. Each writes a report.</span></li>
+        <li><span class="tag">1 round · sonnet</span><b>Bull vs Bear</b><span>Debate using the four reports as evidence.</span></li>
+        <li><span class="tag">opus · JSON</span><b>Research Manager</b><span>5-tier call: Buy, Overweight, Hold, Underweight, Sell.</span></li>
+        <li><span class="tag">sonnet · JSON</span><b>Trader</b><span>Buy/Hold/Sell with entry, stop and target in INR.</span></li>
+        <li><span class="tag">1 round · sonnet</span><b>Risk debate</b><span>Aggressive, Conservative and Neutral views.</span></li>
+        <li><span class="tag">opus · JSON</span><b>Portfolio Manager</b><span>Final rating. Reads Kite holdings in live mode and lessons from past runs.</span></li>
+      </ol>
+      <p class="pipe-note">Claude Code subagents can't start other subagents, so the skill in the main session runs every step. Agents hand work to each other through files in <code>runs/SYMBOL/DATE/</code>, which also keeps an audit trail.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">What carries over</div>
+    <h2>TradingAgents → tradinganalysis</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>TradingAgents (LangGraph)</th><th>tradinganalysis (Claude Code)</th></tr></thead>
+      <tbody>
+        <tr><td>Quick and deep LLM tiers</td><td>Subagent frontmatter <code>model: sonnet</code> for workers, <code>opus</code> for managers</td></tr>
+        <tr><td><code>trade_date</code> injected into every tool</td><td>Every MCP tool takes a required <code>as_of</code> date and clips data to it on the server</td></tr>
+        <tr><td>Pydantic structured output</td><td>Agents write JSON files; <code>scripts/validate.py</code> checks them against Pydantic schemas</td></tr>
+        <tr><td>Memory log and reflection</td><td><code>memory/decisions.jsonl</code>; <code>settle.py</code> scores each call against NIFTY 50 after 5 trading days; lessons go to the Portfolio Manager</td></tr>
+        <tr><td>Backtest over a ticker × date grid</td><td>Headless <code>claude -p "/analyze …"</code> loop on your subscription, or an Agent SDK script billed per API token</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Tested from the cloud sandbox, 05 Nov 2026</div>
+    <h2>Data sources</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>Source</th><th>Status</th><th>Used for</th></tr></thead>
+      <tbody>
+        <tr><td>Yahoo Finance via yfinance (<code>RELIANCE.NS</code>)</td><td><span class="st ok">works</span></td><td>OHLCV, quarterly results to Sep-2026, annual statements, valuation fields, news, ^NSEI. Backtest price source.</td></tr>
+        <tr><td>Zerodha Kite MCP</td><td><span class="st live">live only</span></td><td>Historical candles, quotes, LTP, holdings, positions, margins. Connected on EbenezerOne.</td></tr>
+        <tr><td>NSE archives (<code>EQUITY_L.csv</code>)</td><td><span class="st ok">works</span></td><td>Symbol master, name ↔ symbol ↔ ISIN</td></tr>
+        <tr><td>Google News RSS (en-IN)</td><td><span class="st ok">works</span></td><td>Company and market news, filtered to publish date ≤ <code>as_of</code></td></tr>
+        <tr><td>NSE / BSE JSON APIs</td><td><span class="st no">excluded</span></td><td>Bot-protected (403). We won't work around it.</td></tr>
+        <tr><td>Screener.in</td><td><span class="st no">excluded</span></td><td>Its terms of use don't allow scraping</td></tr>
+      </tbody>
+    </table></div>
+    <div class="rule"><b>No look-ahead rule.</b> Kite tools can't be limited to a past date, so they run only when <code>as_of</code> is today. Backtests use only the project's own MCP server. A quarter's results stay hidden until quarter-end + 45 days (60 for Q4/annual), the SEBI LODR Reg. 33 filing deadlines. That's conservative and can lag the actual announcement.</div>
+    <ul class="plain">
+      <li>The Sentiment analyst reads news tone and price/volume behaviour. India has no free StockTwits or Reddit-style API.</li>
+      <li>Macro context comes from market prices: ^NSEI, ^NSEBANK, ^INDIAVIX, USDINR=X, Brent, US10Y. FRED (free key) is optional later.</li>
+      <li>v1 uses the current NIFTY 50 constituents. Backtests on that list carry survivorship bias, and reports will say so.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="eyebrow">Phase 1 interface</div>
+    <h2>MCP tools</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>Tool</th><th>Returns</th></tr></thead>
+      <tbody>
+        <tr><td><code>resolve_symbol</code></td><td>NSE symbol, ISIN, Yahoo ticker, company name</td></tr>
+        <tr><td><code>get_price_history</code></td><td>Daily OHLCV up to <code>as_of</code></td></tr>
+        <tr><td><code>get_indicators</code></td><td>RSI, MACD, Bollinger, SMA/EMA 20/50/200, ATR, VWMA, computed locally with pandas</td></tr>
+        <tr><td><code>get_market_snapshot</code></td><td>Latest bar on or before <code>as_of</code>, 52-week range, indicator values. The reference for any price claim.</td></tr>
+        <tr><td><code>get_financials</code></td><td>Income statement, balance sheet, cash flow. Only periods past the SEBI filing lag.</td></tr>
+        <tr><td><code>get_fundamentals_summary</code></td><td>Valuation ratios. Live mode only, because Yahoo's values are current, not historical.</td></tr>
+        <tr><td><code>get_company_news</code></td><td>Google News RSS + yfinance news, de-duplicated</td></tr>
+        <tr><td><code>get_market_context</code></td><td>Index, VIX, INR, crude and US10Y levels with 5- and 20-day change</td></tr>
+        <tr><td><code>get_corporate_actions</code></td><td>Dividends and splits up to <code>as_of</code></td></tr>
+        <tr><td><code>get_price_on</code></td><td>Close on a date, for settlement only</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Delivery</div>
+    <h2>Phases</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>Phase</th><th>Deliverable</th><th>Done when</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>MCP data server + look-ahead tests</td><td><code>pytest</code> shows no tool returns data after <code>as_of</code>; registered in Claude Code; works for 5 NIFTY names, then all 50</td></tr>
+        <tr><td>2</td><td>12 subagents, schemas, <code>validate.py</code></td><td>Each agent runs alone on a fixture and writes valid output</td></tr>
+        <tr><td>3</td><td><code>/analyze</code> skill</td><td>One run writes reports, debate, <code>decision.json</code> and <code>report.md</code></td></tr>
+        <tr><td>4</td><td>Memory, settlement, backtest</td><td>Pending calls scored against ^NSEI after 5 trading days; hit-rate and alpha table over a small grid</td></tr>
+        <tr><td>5</td><td>HTML report</td><td>One page per run</td></tr>
+      </tbody>
+    </table></div>
+    <p>Build order: 1, then 3 with minimal agents, then refine 2, then 4 and 5.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">Repository</div>
+    <h2>Layout</h2>
+<pre class="tree">tradinganalysis/
+├── mcp_server/          server.py · asof.py · symbols.py · prices.py
+│                        indicators.py · fundamentals.py · news.py · market.py
+├── schemas/decision.py  ResearchPlan · TraderProposal · PMDecision
+├── scripts/             validate.py · settle.py · backtest.sh · report_html.py
+├── .claude/
+│   ├── agents/          12 subagent files
+│   ├── skills/analyze/  SKILL.md
+│   └── settings.json    MCP registration; deny order and GTT tools
+├── .mcp.json
+├── memory/decisions.jsonl
+├── runs/                per-run files (git-ignored)
+└── tests/               look-ahead tests first</pre>
+  </section>
+
+  <section>
+    <div class="eyebrow">Limits to keep in mind</div>
+    <h2>Risks</h2>
+    <ul class="plain">
+      <li>LLM output varies from run to run. On small backtest grids, results are mostly noise.</li>
+      <li>yfinance is unofficial, so fields and rate limits can change. Cache data locally and expect occasional breakage.</li>
+      <li>Kite sessions expire daily, so you log in once each trading day.</li>
+      <li>A full run makes 12+ subagent calls. It uses subscription limits, and backtests multiply that.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="eyebrow">On EbenezerOne</div>
+    <h2>Next steps</h2>
+    <ol class="steps">
+      <li>Clone <code>prasanthebenezer/tradinganalysis</code> and open it in Claude Desktop.</li>
+      <li>Check that the Kite MCP tools are listed (<code>get_historical_data</code>, <code>get_holdings</code>) and that today's login works.</li>
+      <li>Start Phase 1: <code>mcp_server/</code> plus <code>tests/test_no_lookahead.py</code>.</li>
+    </ol>
+  </section>
+
+  <footer>Not financial advice. Adapted from TauricResearch/TradingAgents under the Apache-2.0 licence; attribution goes in the repo README and the agent prompts.</footer>
+</main>
